@@ -4,7 +4,7 @@
 
 
 #include "Ball.h"
-#include <android/log.h>
+
 
 
 Ball::Ball(float posX, float posY):speed(5.0), radSize(25), directionY(1.0), speedModifier(0.4), startPosX(500),startPosY(500)
@@ -24,6 +24,7 @@ void Ball::Reset()
 
 void Ball::Update(float paddleX)
 {
+    eventByBall = BallDidNotInteract;
 
     x += (directionX * speed);
     y += (directionY * speed);
@@ -31,10 +32,16 @@ void Ball::Update(float paddleX)
     HandleWallCollisions();
 
     // paddle full check is done only if it collided from above
-    if(y+radSize > paddleTop)
-    HandlePaddleCollision(paddleX);
+    if (y + radSize > paddleTop) {
+        HandlePaddleCollision(paddleX);
+    }
+
 
     HandleBricksCollision();
+
+    BallEvent ballEvent{static_cast<EventByBall>(eventByBall)};
+
+
 }
 
 // Implementation of getter functions
@@ -70,6 +77,21 @@ void Ball::SetBrickGrid(BrickGrid& brickGrid) {
 }
 
 
+bool Ball::isCollisionWithRectangle(float rectX, float rectY, float rectWidth, float rectHeight)
+{
+    float closestX = std::max(rectX - rectWidth/2, std::min(x, rectX + rectWidth/2));
+    float closestY = std::max(y - rectHeight/2, std::min(y, y + rectHeight/2));
+
+    // Calculate the distance between the circle's center and the closest point on the rectangle
+    float distanceX = x - closestX;
+    float distanceY = y - closestY;
+
+    // Use Pythagoras theorem to calculate the distance between the circle's center and the closest point
+    float distance = std::sqrt(distanceX * distanceX + distanceY * distanceY);
+
+    // Check if the distance is less than the radius of the circle
+    return distance < radSize;
+};
 
 // Private function to handle collisions with walls
 void Ball::HandleWallCollisions() {
@@ -80,6 +102,7 @@ void Ball::HandleWallCollisions() {
 
         // Make sure the ball is within bounds
         x = radSize;
+        eventByBall = BounceFromWallEvent;
     }
     else if (x+radSize >= 1000) {
         // Reverse the directionX to bounce off
@@ -87,14 +110,16 @@ void Ball::HandleWallCollisions() {
 
         // Make sure the ball is within bounds
         x = 1000-radSize;
+        eventByBall = BounceFromWallEvent;
     }
 
 
-    if (y+radSize <= 0.0) {
+    else if (y+radSize <= 0.0) {
         // Reverse the directionX to bounce off
         directionY = -directionY;
         // Make sure the ball is within bounds
         y= radSize;
+        eventByBall = BounceFromWallEvent;
     }
     else if (y+radSize > 1200)
     {
@@ -120,6 +145,8 @@ void Ball::HandlePaddleCollision(float paddleX) {
         float scaledRelativeCollisionPoint = 2 * relativeCollisionPoint - 1;
         directionX += scaledRelativeCollisionPoint;
 
+
+        eventByBall = BounceFromPaddleEvent;
     }
 
 }
@@ -127,7 +154,7 @@ void Ball::AddCollisionEventListener(EventListener<CollisionEvent>* listener) {
     collisionEventListeners.push_back(listener);
 }
 
-void Ball::AddBallOutEventListener(EventListener<BallOutEvent>* listener) {
+void Ball::AddBallOutEventListener(EventListener<BallEvent>* listener) {
     ballOutEventListeners.push_back(listener);
 }
 
@@ -136,7 +163,7 @@ void Ball::AddBallOutEventListener(EventListener<BallOutEvent>* listener) {
 void Ball::HandleBricksCollision() {
 
     auto& bricks = brickGrid->GetBricks();
-
+    bool didCollide = false;
     for (auto row = bricks.rbegin(); row != bricks.rend(); ++row) {
         for (auto brick = row->begin(); brick != row->end(); ++brick) {
             if (IsCollide(*brick))
@@ -151,23 +178,21 @@ void Ball::HandleBricksCollision() {
                     listener->OnEvent(collisionEvent);
 
                 }
-                return;
+                didCollide = true;
+                break;
             }
         }
+    }
+    if (didCollide) {
+        eventByBall = BounceFromBrickEvent;
     }
 }
 
 void Ball::HandleBallOut()
 
 {
+    eventByBall = BallOutEvent;
     Reset();
-
-    BallOutEvent ballOutEvent;
-    // Notify ball out event listeners
-    for (auto& listener : ballOutEventListeners) {
-        listener->OnEvent(ballOutEvent);
-    }
-
 }
 
 void Ball::BounceFromBrick(const Brick& brick) {
@@ -206,8 +231,8 @@ void Ball::BounceFromBrick(const Brick& brick) {
             y = brick.maxY + radSize;
             directionY = - directionY;
             break;
-
     }
+
 }
  bool Ball::IsCollide(const Brick& brick) {
      // Check if any of the conditions for no collision are met

@@ -13,32 +13,31 @@
 #include "Brick.h"
 #include "BrickGrid.h"
 #include <vector>
-
+#include "Events.h"
 #include "EventListener.h"
 
 
 
 
-class BreakoutGame : public EventListener<CollisionEvent>, public EventListener<BallOutEvent>{
+class BreakoutGame : public EventListener<CollisionEvent>, public EventListener<BallEvent>{
 public:
     BreakoutGame();
     ~BreakoutGame();
 
 
     void OnEvent(CollisionEvent& event) override;
-    void OnEvent(BallOutEvent& event) override;
+    void OnEvent(BallEvent& event) override;
 
 
     const Paddle& GetPaddle() const;
     BrickGrid& GetBrickGrid();
     void Init();
 
-
     int Score;
     int life;
     int brickToRemoveUID;
     Ball ball;
-
+    EventByBall soundFX;
     // Other game-related methods
 
 private:

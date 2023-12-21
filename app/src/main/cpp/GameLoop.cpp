@@ -29,6 +29,7 @@ float paddleX;
 Paddle paddle;
 int score;
 int life;
+EventByBall soundFX;
 
 
 
@@ -96,6 +97,7 @@ void SendUpdateGameInJava(JNIEnv *env, jobject instance)
     int brickUID = game.brickToRemoveUID;
     game.brickToRemoveUID = -1;
     life = game.life;
+    soundFX = game.soundFX;
 
     jclass clazz = env->GetObjectClass(instance);
     jmethodID methodID = env->GetMethodID(clazz, "updateFromCPP", "(FFFIII)V");

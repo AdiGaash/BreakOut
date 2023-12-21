@@ -63,12 +63,13 @@ void BreakoutGame::OnEvent(CollisionEvent& event)
     if(brickGrid.GetBricks().empty())
     {
         // send you win event!
+        NewLevel();
     }
 
 
 
 }
-void BreakoutGame::OnEvent(BallOutEvent& event) {
+void BreakoutGame::OnEvent(BallEvent& event) {
 
 
     this->life--;
@@ -93,6 +94,7 @@ void BreakoutGame::Init() {
     brickToRemoveUID = -1;
     life = 3;
     level = 0;
+
 
 
     NewLevel();
