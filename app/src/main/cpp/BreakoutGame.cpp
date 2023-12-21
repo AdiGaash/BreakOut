@@ -85,7 +85,7 @@ void BreakoutGame::NewLevel()
 {
     ball.Reset();
     // create bricks
-    brickGrid.CreateAllBrickPositions(level+4, 10, 60.0, 75.0, 104.0, 39.0, 3.0, 3.0);
+    brickGrid.CreateAllBrickPositions(level+4, 10, 60.0, 80.0, 104.0, 39.0, 3.0, 3.0);
 }
 void BreakoutGame::Init() {
     // reset score

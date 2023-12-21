@@ -51,12 +51,15 @@ public class MainActivity extends AppCompatActivity {
     ImageView brick2;
     ImageView brick3;
 
-    private Map<Integer, ImageView> imageViewMap;
+    Map<Integer, ImageView> imageViewMap;
 
     TextView scoreText;
     FrameLayout gameLayout;
-    int gameScreenSizeY = 1200;
     float moveRequest = 0;
+
+    // brick def size
+    int brickWidth = 104;
+    int brickHeight = 39;
 
 
 
@@ -73,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         LoadAssets();
         gameLayout.addView(paddleView);
         gameLayout.addView(ballView);
-
+        imageViewMap = new HashMap<>();
         handler = new Handler(Looper.getMainLooper());
         ListenToStartNewGame();
     }
@@ -99,7 +102,6 @@ public class MainActivity extends AppCompatActivity {
     {
         scoreText.setText("0");
         removeAllImageViews();
-        imageViewMap = new HashMap<>();
         handler.removeCallbacks(update);
         moveRequest = 0;
         InitGame();
@@ -108,8 +110,8 @@ public class MainActivity extends AppCompatActivity {
         ListenToPaddleDrag();
         SetNextUpdate();
     }
-    int brickWidth = 104;
-    int brickHeight = 39;
+
+
 
 
     public void DrawABrickFromCPP(float x, float y, int color, int uid)
@@ -145,17 +147,18 @@ public class MainActivity extends AppCompatActivity {
 
     private void removeAllImageViews()
     {
-        if(imageViewMap!=null)
-        {
+
             Iterator<Map.Entry<Integer, ImageView>> iterator = imageViewMap.entrySet().iterator();
 
             while (iterator.hasNext()) {
                 Map.Entry<Integer, ImageView> entry = iterator.next();
                 Integer imageViewUIDName = entry.getKey();
-
-                iterator.remove();
+                ImageView imageView = entry.getValue();
+                if(imageView!=null) {
+                    gameLayout.removeView(imageView);
+                    iterator.remove();
+                }
             }
-        }
     }
 
     // TODO: consider send int bouncing event for soundFX;
@@ -254,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
 
     void LoadAssets()
     {
+        // TODO: this is the old way that I load images before using the drawable folder - need to change to make it standard to all
         paddleView = AssetHelper.GetImageViewFromAsset(this, "images/paddle.png");
         ballView = AssetHelper.GetImageViewFromAsset(this, "images/ball.png");
         paddleView.setX(0);

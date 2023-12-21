@@ -22,20 +22,20 @@
 
         <TextView
             android:id="@+id/life"
-            android:layout_width="wrap_content"
+            android:layout_width="137dp"
             android:layout_height="29dp"
             android:layout_gravity="right"
-            android:textAlignment="center"
+            android:textAlignment="viewStart"
             android:textColor="#243ECF"
             android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
             android:id="@+id/score"
-            android:layout_width="72dp"
+            android:layout_width="94dp"
             android:layout_height="wrap_content"
             android:layout_gravity="left"
-            android:textAlignment="center"
+            android:textAlignment="textEnd"
             android:textColor="#673AB7"
             android:textSize="20sp"
             android:textStyle="bold" />

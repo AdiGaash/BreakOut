@@ -3,7 +3,7 @@
 
 # Sets the minimum version of CMake required to build the native library.
 
-cmake_minimum_required(VERSION 3.18.1)
+cmake_minimum_required(VERSION 3.22.1)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -32,7 +32,6 @@ add_library(game_loop SHARED
         MathHelper.cpp
         BrickGrid.cpp
         Brick.cpp
-
         )
 
 target_link_libraries(game_loop ${log-lib})
