@@ -38,7 +38,6 @@ public:
 
     float GetX() const;
     float GetY() const;
-
     void Update(float paddleX);
     void GetPaddleParameters(Paddle& paddle);
     void SetBrickGrid(BrickGrid& brickGrid);
@@ -72,7 +71,7 @@ private:
     void BounceFromBrick(const Brick& brick);
     bool isCollisionWithRectangle(float rectX, float rectY, float rectWidth, float rectHeight);
     std::vector<EventListener<CollisionEvent>*> collisionEventListeners;
-    std::vector<EventListener<BallEvent>*> ballOutEventListeners;
+    std::vector<EventListener<BallEvent>*> ballEventListeners;
     enum side
     {
         left,right,top,bottom

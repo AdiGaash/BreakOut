@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void removeAllImageViews()
     {
-
             Iterator<Map.Entry<Integer, ImageView>> iterator = imageViewMap.entrySet().iterator();
 
             while (iterator.hasNext()) {
@@ -162,19 +161,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // TODO: consider send int bouncing event for soundFX;
-    public void updateFromCPP(float ballX, float ballY, float paddleX, int brickUID, int score, int life)
+    public void updateFromCPP(float ballX, float ballY, float paddleX, int brickUID, int score, int life, int soundFX)
     {
         String str = Integer.toString(score);
         scoreText.setText(str);
         str = Integer.toString(life);
         lifeText.setText(str);
+        paddleView.setX(paddleX);
+        ballView.setX(ballX);
+        ballView.setY(ballY);
 
-        updateFromCPP( ballX,  ballY,  paddleX);
         if(brickUID!=-1)
         {
             RemoveImageViewByUid(brickUID);
         }
+        SoundManager.playSoundEffect(soundFX);
 
+        SetNextUpdate();
     }
 
 
@@ -200,14 +203,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void updateFromCPP(float ballX, float ballY, float paddleX)
-    {
-        paddleView.setX(paddleX);
-        ballView.setX(ballX);
-        ballView.setY(ballY);
-
-        SetNextUpdate();
-    }
 
 
     private void SetNextUpdate()
@@ -257,15 +252,7 @@ public class MainActivity extends AppCompatActivity {
 
     void LoadAssets()
     {
-        // TODO: this is the old way that I load images before using the drawable folder - need to change to make it standard to all
-        paddleView = AssetHelper.GetImageViewFromAsset(this, "images/paddle.png");
-        ballView = AssetHelper.GetImageViewFromAsset(this, "images/ball.png");
-        paddleView.setX(0);
-        paddleView.setY(1130);
-        ballView.setX(0);
-        ballView.setY(500);
-
-
+        // load prefabs of bricks
         brick1 = new ImageView(this);
         brick1.setImageResource(R.drawable.brick1);
 
@@ -278,6 +265,25 @@ public class MainActivity extends AppCompatActivity {
         brick1.setVisibility(View.INVISIBLE);
         brick2.setVisibility(View.INVISIBLE);
         brick3.setVisibility(View.INVISIBLE);
+
+
+
+        // TODO: this is the old way that I load images before using the drawable folder - need to change to make it standard to all
+        // load "game objects and set init positions
+        paddleView = AssetHelper.GetImageViewFromAsset(this, "images/paddle.png");
+        ballView = AssetHelper.GetImageViewFromAsset(this, "images/ball.png");
+        paddleView.setX(0);
+        paddleView.setY(1130);
+        ballView.setX(0);
+        ballView.setY(500);
+
+
+        // Set audio resources by id
+
+       SoundManager.initializeSounds(this);
+
+
+
     }
 
 

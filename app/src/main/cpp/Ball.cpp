@@ -36,11 +36,13 @@ void Ball::Update(float paddleX)
         HandlePaddleCollision(paddleX);
     }
 
-
     HandleBricksCollision();
 
     BallEvent ballEvent{static_cast<EventByBall>(eventByBall)};
-
+    for (auto& listener : ballEventListeners)
+    {
+        listener->OnEvent(ballEvent);
+    }
 
 }
 
@@ -53,14 +55,14 @@ float Ball::GetY() const {
     return y;
 
 }
+
+
 void Ball::chooseRandomXDirection()
 {
     std::srand(static_cast<unsigned int>(std::time(0)));
     // Randomly set the initial directionX to -1 or 1
     directionX = (std::rand() % 2 == 0) ? -1.0f : 1.0f;
 }
-
-
 
 
 void Ball::GetPaddleParameters(Paddle& paddle)
@@ -71,14 +73,17 @@ void Ball::GetPaddleParameters(Paddle& paddle)
     paddleWidth = paddle.GetWidth();
 }
 
-// get the grid to be available to ball to check for collision
+// get the grid to be available to Ball to check for collision
 void Ball::SetBrickGrid(BrickGrid& brickGrid) {
     this->brickGrid = &brickGrid;
 }
 
-
 bool Ball::isCollisionWithRectangle(float rectX, float rectY, float rectWidth, float rectHeight)
 {
+
+    // TODO: test this,
+    // TODO: make a quicker distance test between centers?
+
     float closestX = std::max(rectX - rectWidth/2, std::min(x, rectX + rectWidth/2));
     float closestY = std::max(y - rectHeight/2, std::min(y, y + rectHeight/2));
 
@@ -100,7 +105,7 @@ void Ball::HandleWallCollisions() {
         // Reverse the directionX to bounce off
         directionX = -directionX;
 
-        // Make sure the ball is within bounds
+        // Make sure the Ball is within bounds
         x = radSize;
         eventByBall = BounceFromWallEvent;
     }
@@ -108,16 +113,14 @@ void Ball::HandleWallCollisions() {
         // Reverse the directionX to bounce off
         directionX = -directionX;
 
-        // Make sure the ball is within bounds
+        // Make sure the Ball is within bounds
         x = 1000-radSize;
         eventByBall = BounceFromWallEvent;
     }
-
-
     else if (y+radSize <= 0.0) {
         // Reverse the directionX to bounce off
         directionY = -directionY;
-        // Make sure the ball is within bounds
+        // Make sure the Ball is within bounds
         y= radSize;
         eventByBall = BounceFromWallEvent;
     }
@@ -125,6 +128,9 @@ void Ball::HandleWallCollisions() {
     {
         HandleBallOut();
     }
+
+
+
 }
 
 
@@ -136,15 +142,14 @@ void Ball::HandlePaddleCollision(float paddleX) {
     // no need to check collision from below paddle
     if (x+radSize >= paddleLeft && x-radSize <= paddleRight) {
 
-        // basic ball bouncing from paddle
+        // basic Ball bouncing from paddle
         directionY = -directionY;
         y = paddleTop-radSize;
 
-        // bouncing of x based on where on the paddle the ball hit
+        // bouncing of x based on where on the paddle the Ball hit
         float relativeCollisionPoint = (x - paddleLeft) / paddleWidth;
         float scaledRelativeCollisionPoint = 2 * relativeCollisionPoint - 1;
         directionX += scaledRelativeCollisionPoint;
-
 
         eventByBall = BounceFromPaddleEvent;
     }
@@ -155,7 +160,7 @@ void Ball::AddCollisionEventListener(EventListener<CollisionEvent>* listener) {
 }
 
 void Ball::AddBallOutEventListener(EventListener<BallEvent>* listener) {
-    ballOutEventListeners.push_back(listener);
+    ballEventListeners.push_back(listener);
 }
 
 
@@ -176,15 +181,11 @@ void Ball::HandleBricksCollision() {
                 for (auto& listener : collisionEventListeners)
                 {
                     listener->OnEvent(collisionEvent);
-
                 }
-                didCollide = true;
                 break;
+
             }
         }
-    }
-    if (didCollide) {
-        eventByBall = BounceFromBrickEvent;
     }
 }
 

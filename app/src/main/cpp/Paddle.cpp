@@ -16,7 +16,7 @@ Paddle::~Paddle() {
 void Paddle::Update(float moveXRequest)
 {
 
-    x = MathHelper::clamp(x += moveXRequest,0, 1000-width/2);
+    x = MathHelper::Clamp(x += moveXRequest, 0, 1000 - width / 2);
 
 }
 

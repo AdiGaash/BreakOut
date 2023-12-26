@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+/app/release/Breakout-2.apk
+/app/src/main/BreakoutAppSrcMain.rar
+/key2.jks

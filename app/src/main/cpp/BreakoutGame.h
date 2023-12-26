@@ -28,16 +28,16 @@ public:
     void OnEvent(CollisionEvent& event) override;
     void OnEvent(BallEvent& event) override;
 
-
+    void Update(float paddleX);
     const Paddle& GetPaddle() const;
     BrickGrid& GetBrickGrid();
     void Init();
 
     int Score;
-    int life;
-    int brickToRemoveUID;
-    Ball ball;
-    EventByBall soundFX;
+    int Life;
+    int BrickToRemove;
+    Ball Ball;
+    int SoundFX;
     // Other game-related methods
 
 private:

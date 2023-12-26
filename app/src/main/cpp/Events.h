@@ -12,6 +12,11 @@ struct CollisionEvent {
      Brick collidedBrick;
 };
 
+
+// this ball events for SFX and game logic...
+// This is temporary
+// TODO: fix object design and better not use event listener pattern.
+
 // Enum declaration
 enum EventByBall {
     BallDidNotInteract,
@@ -23,7 +28,7 @@ enum EventByBall {
 
 // BallOutEvent struct
 struct BallEvent {
-    EventByBall event;
+    EventByBall ballEvent;
 };
 
 #endif //EVENTS_H

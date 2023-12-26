@@ -9,12 +9,12 @@ BreakoutGame::BreakoutGame()
 {
     // this is just in case we will have more then one instance for some strange reason
     if (!ballOutEventListenerAdded) {
-        ball.AddBallOutEventListener(this);
+        Ball.AddBallOutEventListener(this);
         ballOutEventListenerAdded = true;
     }
 
     if (!collisionEventListenerAdded) {
-        ball.AddCollisionEventListener(this);
+        Ball.AddCollisionEventListener(this);
         collisionEventListenerAdded = true;
     }
 
@@ -44,60 +44,86 @@ void BreakoutGame::OnEvent(CollisionEvent& event)
     {
         Score += collidedBrick.giveScore;
         // need to remove brick from array;
-        brickToRemoveUID = collidedBrick.uid;
+        BrickToRemove = collidedBrick.uid;
+        SoundFX = 4;
 
         // Find and remove the specific brick from the array
         for (auto& row : brickGrid.GetBricks()) {
-            auto it = std::find_if(row.begin(), row.end(), [uid = brickToRemoveUID](const Brick& brick) {
+            auto it = std::find_if(row.begin(), row.end(), [uid = BrickToRemove](const Brick& brick) {
                 return brick.uid == uid;
             });
 
             if (it != row.end()) {
-
                 row.erase(it);
                 break;
             }
         }
+
+        if(brickGrid.GetBricks().empty())
+        {
+            SoundFX = 7;
+            NewLevel();
+        }
+    }
+    else
+    {
+        SoundFX = 6;
     }
 
-    if(brickGrid.GetBricks().empty())
-    {
-        // send you win event!
-        NewLevel();
-    }
+
+
 
 
 
 }
-void BreakoutGame::OnEvent(BallEvent& event) {
+void BreakoutGame::OnEvent(BallEvent& event)
+{
 
+    EventByBall ballEvent = (event.ballEvent);
 
-    this->life--;
-    if (this->life < 0)
+    switch(ballEvent)
     {
-        return;
+        case BallOutEvent:
+            this->Life--;
+            SoundFX = 5;
+            break;
+        case BounceFromPaddleEvent:
+            SoundFX = MathHelper::RandomNum(2,3);
+            break;
+        case  BounceFromWallEvent:
+            SoundFX = MathHelper::RandomNum(0,1);
+            break;
+        case BallDidNotInteract:
+            break;
+        case BounceFromBrickEvent:
+            break;
     }
-
-
-
 }
 
 void BreakoutGame::NewLevel()
 {
-    ball.Reset();
+    Ball.Reset();
     // create bricks
     brickGrid.CreateAllBrickPositions(level+4, 10, 60.0, 80.0, 104.0, 39.0, 3.0, 3.0);
 }
 void BreakoutGame::Init() {
     // reset score
     Score = 0;
-    brickToRemoveUID = -1;
-    life = 3;
+    BrickToRemove = -1;
+    Life = 3;
     level = 0;
 
 
 
     NewLevel();
+
+}
+
+void BreakoutGame::Update(float paddleX)
+{
+
+    SoundFX = -1;
+    Ball.Update(paddleX);
 
 }
 

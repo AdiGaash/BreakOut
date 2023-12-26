@@ -29,7 +29,7 @@ float paddleX;
 Paddle paddle;
 int score;
 int life;
-EventByBall soundFX;
+int soundFX;
 
 
 
@@ -51,12 +51,12 @@ Java_com_example_breakout_MainActivity_InitGame(JNIEnv *env, jobject instance)
      score = game.Score;
      paddle = game.GetPaddle();
 
-     game.ball.GetPaddleParameters(paddle);
-     game.ball.SetBrickGrid(game.GetBrickGrid());
+     game.Ball.GetPaddleParameters(paddle);
+     game.Ball.SetBrickGrid(game.GetBrickGrid());
 
 
-     ballX = game.ball.GetX();
-     ballY = game.ball.GetY();
+     ballX = game.Ball.GetX();
+     ballY = game.Ball.GetY();
 
 
     __android_log_print(ANDROID_LOG_DEBUG, "BreakoutGameCPP", "init");
@@ -86,22 +86,25 @@ void SendAllBricks(JNIEnv *env, jobject instance) {
 // Helper function for updating the game state in Java
 void SendUpdateGameInJava(JNIEnv *env, jobject instance)
 {
-    if(game.life < 0)
+    if(game.Life < 0)
         return;
 
-    score = game.Score;
+
     paddleX = paddle.GetX();
-    game.ball.Update(paddleX);
-    ballX = game.ball.GetX();
-    ballY = game.ball.GetY();
-    int brickUID = game.brickToRemoveUID;
-    game.brickToRemoveUID = -1;
-    life = game.life;
-    soundFX = game.soundFX;
+    game.Update(paddleX);
+
+    soundFX = game.SoundFX;
+    score = game.Score;
+    ballX = game.Ball.GetX();
+    ballY = game.Ball.GetY();
+    int brickUID = game.BrickToRemove;
+    game.BrickToRemove = -1;
+    life = game.Life;
+
 
     jclass clazz = env->GetObjectClass(instance);
-    jmethodID methodID = env->GetMethodID(clazz, "updateFromCPP", "(FFFIII)V");
-    env->CallVoidMethod(instance, methodID, ballX, ballY, paddleX, brickUID, score, life);
+    jmethodID methodID = env->GetMethodID(clazz, "updateFromCPP", "(FFFIIII)V");
+    env->CallVoidMethod(instance, methodID, ballX, ballY, paddleX, brickUID, score, life, soundFX);
 
 }
 
