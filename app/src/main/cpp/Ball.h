@@ -58,6 +58,7 @@ private:
     float paddleTop;
     float paddleWidth;
     float speedModifier;
+    float maxSpeed;
     float startPosX;
     float startPosY;
     BrickGrid* brickGrid;

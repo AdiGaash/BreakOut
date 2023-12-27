@@ -9,16 +9,23 @@
 #include "Brick.h"
 
 class BrickGrid {
-private:
-    std::vector<std::vector<Brick>> bricks; // Make bricks private
+
 
 public:
+
     // Function to create brick positions
-    void CreateAllBrickPositions(int rows, int columns, float startX, float startY, float brickWidth, float brickHeight, float rowSpacing, float columnSpacing);
+    void CreateAllBrickPositions(int rows, int columns, float startX, float startY, float brickWidth,
+                            float brickHeight, float rowSpacing, float columnSpacing);
 
     // Function to get the bricks
-     std::vector<std::vector<Brick>>& GetBricks();
-};
+    // Access elements using 1D index
+    Brick& GetBrick(int index);
 
+    // Access the entire vector of bricks
+    std::vector<Brick>& GetBricks();
+
+private:
+    std::vector<Brick> bricks;
+};
 
 #endif //BREAKOUT_BRICKGRID_H

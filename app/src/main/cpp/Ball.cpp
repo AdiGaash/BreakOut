@@ -7,15 +7,14 @@
 
 
 
-Ball::Ball(float posX, float posY):speed(5.0), radSize(25), directionY(1.0), speedModifier(0.4), startPosX(500),startPosY(500)
+Ball::Ball(float posX, float posY):speed(6.5), radSize(25), directionY(1.0), speedModifier(0.4), startPosX(500),startPosY(500), maxSpeed(15)
 {
     Reset();
 }
 
 void Ball::Reset()
 {
-
-    speed = 5.0;
+    speed = 6.5;
     x = startPosX;
     y = startPosY;
     directionY = 1.0;
@@ -128,9 +127,6 @@ void Ball::HandleWallCollisions() {
     {
         HandleBallOut();
     }
-
-
-
 }
 
 
@@ -168,29 +164,27 @@ void Ball::AddBallOutEventListener(EventListener<BallEvent>* listener) {
 void Ball::HandleBricksCollision() {
 
     auto& bricks = brickGrid->GetBricks();
-    bool didCollide = false;
-    for (auto row = bricks.rbegin(); row != bricks.rend(); ++row) {
-        for (auto brick = row->begin(); brick != row->end(); ++brick) {
-            if (IsCollide(*brick))
-            {
-                BounceFromBrick(*brick);
-                speed+=speedModifier;
-                CollisionEvent collisionEvent{ *brick };
-                (*brick).hitPoints--;
+    int totalBricks = static_cast<int>(bricks.size());
 
-                for (auto& listener : collisionEventListeners)
-                {
-                    listener->OnEvent(collisionEvent);
-                }
-                break;
+    for (int index = totalBricks - 1; index >= 0; --index) {
+        if (IsCollide(bricks[index]))
+        {
+            BounceFromBrick(bricks[index]);
+            speed += speedModifier;
+            if (speed > maxSpeed) speed = maxSpeed;
+            bricks[index].hitPoints--;
+            CollisionEvent collisionEvent{ bricks[index] };
 
+            for (auto& listener : collisionEventListeners) {
+                listener->OnEvent(collisionEvent);
             }
+
+            return;
         }
     }
 }
 
 void Ball::HandleBallOut()
-
 {
     eventByBall = BallOutEvent;
     Reset();

@@ -34,48 +34,44 @@ const Paddle& BreakoutGame::GetPaddle() const
     return brickGrid;
 }
 
+
+void BreakoutGame::RemoveCollidedBrick(const Brick& collidedBrick) {
+    auto& bricks = brickGrid.GetBricks();
+    auto it = std::find_if(bricks.begin(), bricks.end(),
+                           [uid = collidedBrick.uid](const Brick& brick) {
+                               return brick.uid == uid;
+                           });
+
+    if (it != bricks.end()) {
+        bricks.erase(it);
+        BrickToRemove = collidedBrick.uid;
+    }
+}
+
 void BreakoutGame::OnEvent(CollisionEvent& event)
 {
     __android_log_print(ANDROID_LOG_DEBUG, "BreakoutGameCPP", "BrickCollide!");
     Brick collidedBrick = (event.collidedBrick);
 
-    collidedBrick.hitPoints--;
-    if(collidedBrick.hitPoints<1)
+    if (collidedBrick.hitPoints < 1)
     {
         Score += collidedBrick.giveScore;
-        // need to remove brick from array;
-        BrickToRemove = collidedBrick.uid;
         SoundFX = 4;
 
-        // Find and remove the specific brick from the array
-        for (auto& row : brickGrid.GetBricks()) {
-            auto it = std::find_if(row.begin(), row.end(), [uid = BrickToRemove](const Brick& brick) {
-                return brick.uid == uid;
-            });
+        // Remove the specific brick from the array
+        RemoveCollidedBrick(collidedBrick);
+    }
 
-            if (it != row.end()) {
-                row.erase(it);
-                break;
-            }
-        }
-
-        if(brickGrid.GetBricks().empty())
-        {
-            SoundFX = 7;
-            NewLevel();
-        }
+    if (brickGrid.GetBricks().empty())
+    {
+        SoundFX = 7;
+        NewLevel();
     }
     else
-    {
         SoundFX = 6;
-    }
-
-
-
-
-
-
 }
+
+
 void BreakoutGame::OnEvent(BallEvent& event)
 {
 
@@ -104,24 +100,21 @@ void BreakoutGame::NewLevel()
 {
     Ball.Reset();
     // create bricks
-    brickGrid.CreateAllBrickPositions(level+4, 10, 60.0, 80.0, 104.0, 39.0, 3.0, 3.0);
+    brickGrid.CreateAllBrickPositions(level+4, 10, 40.0, 100.0, 104.0, 39.0, 3.0, 3.0);
 }
 void BreakoutGame::Init() {
-    // reset score
+
     Score = 0;
-    BrickToRemove = -1;
     Life = 3;
     level = 0;
-
-
+    brickRemoveCounter = 0;
 
     NewLevel();
-
 }
 
 void BreakoutGame::Update(float paddleX)
 {
-
+    BrickToRemove = -1;
     SoundFX = -1;
     Ball.Update(paddleX);
 

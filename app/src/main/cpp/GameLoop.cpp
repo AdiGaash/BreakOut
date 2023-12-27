@@ -30,7 +30,7 @@ Paddle paddle;
 int score;
 int life;
 int soundFX;
-
+int brickUID;
 
 
 
@@ -43,7 +43,7 @@ void SendUpdateGameInJava(JNIEnv *env, jobject instance);
 
 
 JNIEXPORT void JNICALL
-Java_com_example_breakout_MainActivity_InitGame(JNIEnv *env, jobject instance)
+Java_com_example_breakout_MainActivity_InitGameLogic(JNIEnv *env, jobject instance)
 {
 
      game.Init();
@@ -66,20 +66,24 @@ Java_com_example_breakout_MainActivity_InitGame(JNIEnv *env, jobject instance)
 
 // sending all bricks (one by one in a loop to java to be created by imageView
 void SendAllBricks(JNIEnv *env, jobject instance) {
-    const std::vector<std::vector<Brick>> &bricks = game.GetBrickGrid().GetBricks();
-    for (const auto &row: bricks) {
-        for (const auto &brick: row) {
-            // Access brick information and call the Java method
-            float x = brick.x;
-            float y = brick.y;
-            int color = brick.color;
-            int uid = brick.uid;
+
+    auto& bricks = game.GetBrickGrid().GetBricks();
+    int totalBricks = static_cast<int>(bricks.size());
+
+    for (int index = totalBricks - 1; index >= 0; --index)
+    {
+        Brick brick = bricks[index];
+
+        // Access brick information and call the Java method
+        float x = brick.x;
+        float y = brick.y;
+        int color = brick.color;
+        int uid = brick.uid;
 
 
-            jclass clazz = env->GetObjectClass(instance);
-            jmethodID methodID = env->GetMethodID(clazz, "DrawABrickFromCPP", "(FFII)V");
-            env->CallVoidMethod(instance, methodID, x, y, color, uid);
-        }
+        jclass clazz = env->GetObjectClass(instance);
+        jmethodID methodID = env->GetMethodID(clazz, "DrawABrickFromCPP", "(FFII)V");
+        env->CallVoidMethod(instance, methodID, x, y, color, uid);
     }
 }
 
@@ -97,14 +101,18 @@ void SendUpdateGameInJava(JNIEnv *env, jobject instance)
     score = game.Score;
     ballX = game.Ball.GetX();
     ballY = game.Ball.GetY();
-    int brickUID = game.BrickToRemove;
-    game.BrickToRemove = -1;
+    brickUID = game.BrickToRemove;
     life = game.Life;
+
+
+    if(soundFX==7)
+        SendAllBricks(env, instance);
 
 
     jclass clazz = env->GetObjectClass(instance);
     jmethodID methodID = env->GetMethodID(clazz, "updateFromCPP", "(FFFIIII)V");
     env->CallVoidMethod(instance, methodID, ballX, ballY, paddleX, brickUID, score, life, soundFX);
+
 
 }
 

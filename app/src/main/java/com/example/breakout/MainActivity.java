@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
     // CPP call functions
     public native void DoGameLoop();
-    public native void InitGame();
+    public native void InitGameLogic();
     public native void DoGameLoopAndMoveRequest(float moveRequest);
 
     // game update loop parameters
@@ -41,8 +41,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     private final int fps = 30;
-    //private final int fps = 60;
-    private final long frameTime = 1000 / fps; // Time per frame in milliseconds
 
     ImageView paddleView;
     ImageView ballView;
@@ -61,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     int brickWidth = 104;
     int brickHeight = 39;
 
-
+    FrameLayout groupOfBricksViewsLayout;
 
 
 
@@ -69,6 +67,14 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InitActivity();
+        ListenToStartNewGame();
+    }
+
+
+
+    void InitActivity()
+    {
         setContentView(R.layout.activity_game);
         gameLayout = findViewById(R.id.gameLayout);
         scoreText = findViewById(R.id.score);
@@ -76,35 +82,28 @@ public class MainActivity extends AppCompatActivity {
         LoadAssets();
         gameLayout.addView(paddleView);
         gameLayout.addView(ballView);
+        groupOfBricksViewsLayout= new FrameLayout(this);
+        groupOfBricksViewsLayout.setLayoutParams(gameLayout.getLayoutParams());
         imageViewMap = new HashMap<>();
+        gameLayout.addView(groupOfBricksViewsLayout);
+
         handler = new Handler(Looper.getMainLooper());
-        ListenToStartNewGame();
     }
-
-
-
-
 
     private void ListenToStartNewGame() {
 
         Button myButton = findViewById(R.id.startButton);
-        myButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                InitGameJava();
-            }
-        });
+        myButton.setOnClickListener(view -> InitGameJava());
     }
 
 
     void InitGameJava()
     {
         scoreText.setText("0");
-        removeAllImageViews();
+        removeAllBricks();
         handler.removeCallbacks(update);
         moveRequest = 0;
-        InitGame();
+        InitGameLogic();
 
         Log.d("BreakoutGameJava", "Init Game");
         ListenToPaddleDrag();
@@ -125,8 +124,7 @@ public class MainActivity extends AppCompatActivity {
             case 2:
                 newImageView.setImageDrawable(brick3.getDrawable());
                 break;
-            case 0:
-            default:
+            case 3:
                 newImageView.setImageDrawable(brick1.getDrawable());
                 break;
         }
@@ -139,34 +137,34 @@ public class MainActivity extends AppCompatActivity {
         params.topMargin = (int) (y-brickHeight/2);
 
         newImageView.setLayoutParams(params);
-        gameLayout.addView(newImageView);
-
+        groupOfBricksViewsLayout.addView(newImageView);
         imageViewMap.put(uid, newImageView);
+
+        if(uid == 0)
+        {
+
+            groupOfBricksViewsLayout.setVisibility(View.VISIBLE);
+        }
+
 
     }
 
-    private void removeAllImageViews()
+    private void removeAllBricks()
     {
-            Iterator<Map.Entry<Integer, ImageView>> iterator = imageViewMap.entrySet().iterator();
+        imageViewMap = new HashMap<>();
+        groupOfBricksViewsLayout.setVisibility(View.INVISIBLE);
+        groupOfBricksViewsLayout.removeAllViewsInLayout();
 
-            while (iterator.hasNext()) {
-                Map.Entry<Integer, ImageView> entry = iterator.next();
-                Integer imageViewUIDName = entry.getKey();
-                ImageView imageView = entry.getValue();
-                if(imageView!=null) {
-                    gameLayout.removeView(imageView);
-                    iterator.remove();
-                }
-            }
     }
 
     // TODO: consider send int bouncing event for soundFX;
+    @SuppressLint("SetTextI18n")
     public void updateFromCPP(float ballX, float ballY, float paddleX, int brickUID, int score, int life, int soundFX)
     {
-        String str = Integer.toString(score);
-        scoreText.setText(str);
+        String str =  Integer.toString(score);
+        scoreText.setText("Score: " + str);
         str = Integer.toString(life);
-        lifeText.setText(str);
+        lifeText.setText("Life: " + str);
         paddleView.setX(paddleX);
         ballView.setX(ballX);
         ballView.setY(ballY);
@@ -176,6 +174,8 @@ public class MainActivity extends AppCompatActivity {
             RemoveImageViewByUid(brickUID);
         }
         SoundManager.playSoundEffect(soundFX);
+        if(soundFX==7)
+            removeAllBricks();
 
         SetNextUpdate();
     }
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity {
     void RemoveImageViewByUid(int targetUid)
     {
         Iterator<Map.Entry<Integer, ImageView>> iterator = imageViewMap.entrySet().iterator();
-
+        Log.d("BreakoutGameJava", "need to remove brick" + targetUid);
         while (iterator.hasNext())
         {
             Map.Entry<Integer, ImageView> entry = iterator.next();
@@ -193,11 +193,9 @@ public class MainActivity extends AppCompatActivity {
 
             if (uid == targetUid)
             {
-                gameLayout.removeView(imageView);
-
+                groupOfBricksViewsLayout.removeView(imageView);
                 iterator.remove();
-
-                Log.d("BreakoutGameJava", "remove brick");
+                Log.d("BreakoutGameJava", "remove brick" + targetUid);
                 break;
             }
         }
@@ -207,6 +205,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void SetNextUpdate()
     {
+        //private final int fps = 60;
+        // Time per frame in milliseconds
+        long frameTime = 1000 / fps;
         handler.postDelayed(update, frameTime);
     }
 
