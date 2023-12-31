@@ -5,13 +5,15 @@ import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class AssetHelper {
+public enum AssetHelper {
+    ;
 
     public static ImageView GetImageViewFromAsset(Context context, String fileName)
     {
@@ -46,8 +48,8 @@ public class AssetHelper {
     public static void SetImageViewAtCenter(ImageView imageView)
     {
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
-                RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
         );
         params.addRule(RelativeLayout.CENTER_IN_PARENT);
         imageView.setLayoutParams(params);

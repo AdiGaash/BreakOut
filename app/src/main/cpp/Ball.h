@@ -29,7 +29,8 @@ public:
 
     void AddCollisionEventListener(EventListener<CollisionEvent>* listener);
     void AddBallOutEventListener(EventListener<BallEvent>* listener);
-
+    void RemoveCollisionEventListener(EventListener<CollisionEvent>* listener);
+    void RemoveBallEventListener(EventListener<BallEvent>* listener);
 
     Ball(float posX = 0.0f, float posY = 0.0f);
 
@@ -68,9 +69,8 @@ private:
     void HandleBricksCollision();
     void HandleWallCollisions();
     void HandlePaddleCollision(float paddleX);
-    bool IsCollide(const Brick& brick);
+    bool IsCollideWithBrick(const Brick& brick);
     void BounceFromBrick(const Brick& brick);
-    bool isCollisionWithRectangle(float rectX, float rectY, float rectWidth, float rectHeight);
     std::vector<EventListener<CollisionEvent>*> collisionEventListeners;
     std::vector<EventListener<BallEvent>*> ballEventListeners;
     enum side

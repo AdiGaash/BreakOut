@@ -42,11 +42,10 @@ public:
 
 private:
 
-    int brickRemoveCounter;
     int level;
     Paddle paddle;
     BrickGrid brickGrid;
-    bool ballOutEventListenerAdded = false;
+    bool ballEventListenerAdded = false;
     bool collisionEventListenerAdded = false;
     void NewLevel();
 

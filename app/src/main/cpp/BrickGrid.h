@@ -19,7 +19,6 @@ public:
 
     // Function to get the bricks
     // Access elements using 1D index
-    Brick& GetBrick(int index);
 
     // Access the entire vector of bricks
     std::vector<Brick>& GetBricks();

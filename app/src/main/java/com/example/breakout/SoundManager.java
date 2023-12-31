@@ -6,7 +6,8 @@ import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
 
-public class SoundManager {
+public enum SoundManager {
+    ;
     private static SoundPool soundPool;
     private static int[] soundEffects;
 

@@ -26,9 +26,7 @@ void BrickGrid::CreateAllBrickPositions(int rows, int columns, float startX, flo
     }
 }
 
-Brick& BrickGrid::GetBrick(int index) {
-    return bricks[index];
-}
+
 
 // Access the entire vector of bricks
 std::vector<Brick>& BrickGrid::GetBricks(){

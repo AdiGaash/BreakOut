@@ -140,11 +140,8 @@ public class MainActivity extends AppCompatActivity {
         groupOfBricksViewsLayout.addView(newImageView);
         imageViewMap.put(uid, newImageView);
 
-        if(uid == 0)
-        {
 
-            groupOfBricksViewsLayout.setVisibility(View.VISIBLE);
-        }
+
 
 
     }
@@ -152,9 +149,7 @@ public class MainActivity extends AppCompatActivity {
     private void removeAllBricks()
     {
         imageViewMap = new HashMap<>();
-        groupOfBricksViewsLayout.setVisibility(View.INVISIBLE);
         groupOfBricksViewsLayout.removeAllViewsInLayout();
-
     }
 
     // TODO: consider send int bouncing event for soundFX;
@@ -174,10 +169,9 @@ public class MainActivity extends AppCompatActivity {
             RemoveImageViewByUid(brickUID);
         }
         SoundManager.playSoundEffect(soundFX);
-        if(soundFX==7)
-            removeAllBricks();
+        //if(soundFX==7) removeAllBricks();
 
-        SetNextUpdate();
+         SetNextUpdate();
     }
 
 
@@ -211,7 +205,7 @@ public class MainActivity extends AppCompatActivity {
         handler.postDelayed(update, frameTime);
     }
 
-    private Runnable update = new Runnable()
+    private final Runnable update = new Runnable()
     {
         public void run() {
             if(moveRequest==0)

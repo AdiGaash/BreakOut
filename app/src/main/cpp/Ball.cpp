@@ -1,20 +1,20 @@
-//
+
 // Created by adiga on 16/12/2023.
-//
+
 
 
 #include "Ball.h"
 
 
 
-Ball::Ball(float posX, float posY):speed(6.5), radSize(25), directionY(1.0), speedModifier(0.4), startPosX(500),startPosY(500), maxSpeed(15)
+Ball::Ball(float posX, float posY):speed(7), radSize(25), directionY(1.0), speedModifier(0.4), startPosX(500),startPosY(500), maxSpeed(18)
 {
     Reset();
 }
 
 void Ball::Reset()
 {
-    speed = 6.5;
+    speed = 7;
     x = startPosX;
     y = startPosY;
     directionY = 1.0;
@@ -55,6 +55,28 @@ float Ball::GetY() const {
 
 }
 
+// event functions
+void Ball::RemoveCollisionEventListener(EventListener<CollisionEvent>* listener) {
+    auto it = std::remove(collisionEventListeners.begin(), collisionEventListeners.end(), listener);
+    collisionEventListeners.erase(it, collisionEventListeners.end());
+}
+
+void Ball::RemoveBallEventListener(EventListener<BallEvent>* listener) {
+    auto it = std::remove(ballEventListeners.begin(), ballEventListeners.end(), listener);
+    ballEventListeners.erase(it, ballEventListeners.end());
+}
+
+void Ball::AddCollisionEventListener(EventListener<CollisionEvent>* listener) {
+    collisionEventListeners.push_back(listener);
+}
+
+void Ball::AddBallOutEventListener(EventListener<BallEvent>* listener) {
+    ballEventListeners.push_back(listener);
+}
+// event functions
+
+
+
 
 void Ball::chooseRandomXDirection()
 {
@@ -77,25 +99,7 @@ void Ball::SetBrickGrid(BrickGrid& brickGrid) {
     this->brickGrid = &brickGrid;
 }
 
-bool Ball::isCollisionWithRectangle(float rectX, float rectY, float rectWidth, float rectHeight)
-{
 
-    // TODO: test this,
-    // TODO: make a quicker distance test between centers?
-
-    float closestX = std::max(rectX - rectWidth/2, std::min(x, rectX + rectWidth/2));
-    float closestY = std::max(y - rectHeight/2, std::min(y, y + rectHeight/2));
-
-    // Calculate the distance between the circle's center and the closest point on the rectangle
-    float distanceX = x - closestX;
-    float distanceY = y - closestY;
-
-    // Use Pythagoras theorem to calculate the distance between the circle's center and the closest point
-    float distance = std::sqrt(distanceX * distanceX + distanceY * distanceY);
-
-    // Check if the distance is less than the radius of the circle
-    return distance < radSize;
-};
 
 // Private function to handle collisions with walls
 void Ball::HandleWallCollisions() {
@@ -144,20 +148,14 @@ void Ball::HandlePaddleCollision(float paddleX) {
 
         // bouncing of x based on where on the paddle the Ball hit
         float relativeCollisionPoint = (x - paddleLeft) / paddleWidth;
-        float scaledRelativeCollisionPoint = 2 * relativeCollisionPoint - 1;
+        float scaledRelativeCollisionPoint = relativeCollisionPoint - 0.5;
         directionX += scaledRelativeCollisionPoint;
 
         eventByBall = BounceFromPaddleEvent;
     }
 
 }
-void Ball::AddCollisionEventListener(EventListener<CollisionEvent>* listener) {
-    collisionEventListeners.push_back(listener);
-}
 
-void Ball::AddBallOutEventListener(EventListener<BallEvent>* listener) {
-    ballEventListeners.push_back(listener);
-}
 
 
 
@@ -167,7 +165,7 @@ void Ball::HandleBricksCollision() {
     int totalBricks = static_cast<int>(bricks.size());
 
     for (int index = totalBricks - 1; index >= 0; --index) {
-        if (IsCollide(bricks[index]))
+        if (IsCollideWithBrick(bricks[index]))
         {
             BounceFromBrick(bricks[index]);
             speed += speedModifier;
@@ -229,7 +227,7 @@ void Ball::BounceFromBrick(const Brick& brick) {
     }
 
 }
- bool Ball::IsCollide(const Brick& brick) {
+ bool Ball::IsCollideWithBrick(const Brick& brick) {
      // Check if any of the conditions for no collision are met
      if (x + radSize < brick.minX || x - radSize > brick.maxX ||
          y + radSize < brick.minY || y - radSize > brick.maxY) {

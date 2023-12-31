@@ -8,9 +8,9 @@
 BreakoutGame::BreakoutGame()
 {
     // this is just in case we will have more then one instance for some strange reason
-    if (!ballOutEventListenerAdded) {
+    if (!ballEventListenerAdded) {
         Ball.AddBallOutEventListener(this);
-        ballOutEventListenerAdded = true;
+        ballEventListenerAdded = true;
     }
 
     if (!collisionEventListenerAdded) {
@@ -20,8 +20,14 @@ BreakoutGame::BreakoutGame()
 
     Init();
 }
-BreakoutGame::~BreakoutGame() {
 
+BreakoutGame::~BreakoutGame()
+{
+    if(collisionEventListenerAdded)
+        Ball.RemoveCollisionEventListener(this);
+
+    if(ballEventListenerAdded)
+        Ball.RemoveBallEventListener(this);
 }
 
 
@@ -65,6 +71,7 @@ void BreakoutGame::OnEvent(CollisionEvent& event)
     if (brickGrid.GetBricks().empty())
     {
         SoundFX = 7;
+        level++;
         NewLevel();
     }
     else
@@ -100,14 +107,13 @@ void BreakoutGame::NewLevel()
 {
     Ball.Reset();
     // create bricks
-    brickGrid.CreateAllBrickPositions(level+4, 10, 40.0, 100.0, 104.0, 39.0, 3.0, 3.0);
+    brickGrid.CreateAllBrickPositions(level+4, 10, 55.0, 100.0, 104.0, 39.0, 3.0, 3.0);
 }
 void BreakoutGame::Init() {
 
     Score = 0;
     Life = 3;
     level = 0;
-    brickRemoveCounter = 0;
 
     NewLevel();
 }

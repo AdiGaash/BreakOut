@@ -25,7 +25,7 @@ find_library( # Sets the name of the path variable.
         log)
 
 add_library(game_loop SHARED
-        GameLoop.cpp
+        NativeToJavaManager.cpp
         BreakoutGame.cpp
         Ball.cpp
         Paddle.cpp
